@@ -11,7 +11,7 @@ import (
 	"github.com/go-telegram/bot/models"
 )
 
-// Send any text message to the bot after the bot has been started
+
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -29,18 +29,31 @@ func main() {
 }
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if update.Message == nil {
+		return // ignore updates that aren’t a message
+	}
+
+	var channel_ids = []int64{
+		-1002556120690,
+		-1002158048191,
+		-1002351566952,
+	}
+
 	chatID, err := strconv.Atoi(os.Getenv("CHAT_ID"))
 	if err != nil {
 		fmt.Println("Invalid CHAT_ID:", err)
 		return
 	}
+
 	if int(update.Message.Chat.ID) == chatID {
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   update.Message.Text,
-		})
+		for _, channel_id := range channel_ids {
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID:    channel_id,
+				ParseMode: "HTML",
+				Text:      update.Message.Text,
+			})
+		}
 	} else {
 		fmt.Println(update.Message.Text, "user not verified")
 	}
-
 }
