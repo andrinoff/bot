@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"strconv"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"github.com/joho/godotenv"
 
 	discord_bot "bot/discord"
 )
@@ -29,13 +31,18 @@ func main() {
 	b.Start(ctx)
 }
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file:", err)
+	}
+}
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if update.Message == nil {
 		return // ignore updates that aren’t a message
 	}
 
 	var channel_ids = []int64{
-		-1002556120690,
 		-1002158048191,
 		-1002351566952,
 	}
@@ -50,7 +57,7 @@ func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 		for _, channel_id := range channel_ids {
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID:    channel_id,
-				ParseMode: "HTML",
+				// ParseMode: "MarkdownV2",
 				Text:      update.Message.Text,
 			})
 		}
